@@ -11,8 +11,9 @@ class repository_client:Init_repository
     
     public static async Task Main()
     {
+        //await add_client("oi",658,2565,true);
+        await atualizar_client();
         
-        var n1= await Get_client();
         
          
        
@@ -56,7 +57,33 @@ class repository_client:Init_repository
         }
         return sucesso;
     }  
-     
+    public static async Task atualizar_client()
+    {
+        int sucesso;
+        await using var n1=Connect();
+
+        await n1.OpenAsync();
+        //revisar e atualizar todas as informaçoes
+        await using (var cmd = new NpgsqlCommand($"UPDATE  cliente set nome='Daniel' WHERE nome = @nome ", n1))
+        {
+            cmd.Parameters.AddWithValue("nome","oi");
+            sucesso=await cmd.ExecuteNonQueryAsync();
+        }
+    }
+    public static async Task delete_client()
+    {
+        int sucesso;
+        await using var n1=Connect();
+
+        await n1.OpenAsync();
+//revisar e colocar pra pegar por id
+        await using (var cmd = new NpgsqlCommand("DELETE FROM cliente WHERE nome = @nome ", n1))
+        {
+            cmd.Parameters.AddWithValue("nome","oi");
+            sucesso=await cmd.ExecuteNonQueryAsync();
+        }
+        
+    }
 }
 
 
