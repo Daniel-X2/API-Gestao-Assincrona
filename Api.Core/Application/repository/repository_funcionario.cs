@@ -1,13 +1,15 @@
+using System.Runtime.InteropServices;
 using Npgsql;
 
 
 
-class repository_funcionario:Init_repository
+class repository_funcionario(IConnect host)
 {
     
-    protected internal static async Task<tipos> Get_funcionario()
+    internal async Task<tipos> Get_funcionario()
     {
-        await using NpgsqlConnection connect=Connect();
+        
+        await using NpgsqlConnection connect=host.Connect();
         
         await connect.OpenAsync();
         
@@ -29,10 +31,11 @@ class repository_funcionario:Init_repository
          
         return lista;
     }
-    protected internal static async Task<int> add_funcionario(string nome,int cpf,int quantidade_atestado,bool isadmin,int nascimento)
+    internal  async Task<int> add_funcionario(string nome,string cpf,int quantidade_atestado,bool isadmin,int nascimento)
     {
         int resultado;
-        await using NpgsqlConnection connect = Connect();
+        
+        await using NpgsqlConnection connect = host.Connect();
         
         await connect.OpenAsync();
 
@@ -49,10 +52,10 @@ class repository_funcionario:Init_repository
         return resultado;
     }  
     
-    public static async Task<int> atualizar_funcionario(string antigo_nome,string novo_nome)
+    internal  async Task<int> atualizar_funcionario(string antigo_nome,string novo_nome)
     {
-        
-        await using NpgsqlConnection connect=Connect();
+     
+        await using NpgsqlConnection connect=host.Connect();
 
         await connect.OpenAsync();
         int resultado;
@@ -65,10 +68,11 @@ class repository_funcionario:Init_repository
          return  resultado;
 
     }
-     public static async Task<int> delete_funcionario(string nome)
+    internal  async Task<int> delete_funcionario(string nome)
     {
         int resultado;
-        await using NpgsqlConnection connect=Connect();
+       
+        await using NpgsqlConnection connect=host.Connect();
 
         await connect.OpenAsync();
         //revisar e colocar pra pegar por id

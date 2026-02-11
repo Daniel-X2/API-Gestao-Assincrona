@@ -3,29 +3,38 @@ using static repository_client;
 
 public class Test_client
 {
+    
     [Fact]
     public async Task test_add_client()
     {
+        Host host=new();
+        
+        repository_client repo=new(host);
+        
         string nome="Daniel";
-        int cpf=457665;
+        string cpf="457665";
         int conta=5555;
         bool isvip=true;
-        int resultado= await add_client(nome,cpf,conta,isvip);
+        await repo.add_client(nome,cpf,conta,isvip);
+        int resultado= await repo.delete(nome);
         
-        await delete(nome);
+        
         Assert.NotEqual(0,resultado);
       
     }
     [Fact]
     public async Task test_atualizar_client()
     {
-        string antigo_nome="felipe";
-        await add_client(antigo_nome,4,4,false);
+        Host host=new();
+        
+        repository_client repo=new(host);
+       string antigo_nome="felipe";
+        await repo.add_client(antigo_nome,"4",4,false);
         
         string novo_nome="cleitonn";
-        int resultado= await atualizar_client(antigo_nome,novo_nome);
+        int resultado= await repo.atualizar_client(antigo_nome,novo_nome);
 
-        await delete(novo_nome);
+        await repo.delete(novo_nome);
         Assert.NotEqual(0,resultado);
     
         
@@ -33,24 +42,31 @@ public class Test_client
     [Fact]
     public async Task test_delete_client()
     {
-        string nome="elton";
-        await add_client(nome,4,4,false);
+        Host host=new();
         
-        int resultado = await delete(nome);
+        repository_client repo=new(host);
+        string nome="elton";
+        await repo.add_client(nome,"4",4,false);
+        
+        int resultado = await repo.delete(nome);
         Assert.NotEqual(0,resultado);
     }
 
-    [Fact]
+   
+ [Fact]
+    
     public async Task test_get_client()
     {
+        Host host=new();
+        repository_client repo=new(host);
         string nome="clei";
-        await add_client(nome,4,4,false);
+        await repo.add_client(nome,"4",4,false);
 
-       var resultado= await Get_client();
+       var resultado= await repo.Get_client();
        
        Assert.NotEqual(0,resultado.lista_client[0].Nome.Length);
        
-       await delete(nome);
+       await repo.delete(nome);
        
     }
 }

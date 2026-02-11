@@ -1,13 +1,16 @@
 using Npgsql;
 
 
-class repository_client: Init_repository
+class repository_client(IConnect host)
 {
     
     
-    protected internal static async Task<tipos> Get_client()
+    internal  async Task<tipos> Get_client()
     {
-        await using NpgsqlConnection connect=Connect();
+
+        
+        
+        await using NpgsqlConnection connect=host.Connect(); 
         
         await connect.OpenAsync();
         
@@ -28,10 +31,11 @@ class repository_client: Init_repository
          
         return lista;
     }
-    protected internal static async Task<int> add_client(string nome,int cpf,int conta,bool isvip)
+    internal  async Task<int> add_client(string nome,string cpf,int conta,bool isvip)
     {
         int resultado;
-        await using NpgsqlConnection connect = Connect();
+        
+        await using NpgsqlConnection connect = host.Connect();
         
         await connect.OpenAsync();
 
@@ -47,10 +51,10 @@ class repository_client: Init_repository
         return resultado;
     }  
     
-    public static async Task<int> atualizar_client(string antigo_nome,string novo_nome)
+    internal  async Task<int> atualizar_client(string antigo_nome,string novo_nome)
     {
         
-        await using NpgsqlConnection connect=Connect();
+        await using NpgsqlConnection connect=host.Connect();
 
         await connect.OpenAsync();
         int resultado;
@@ -63,11 +67,12 @@ class repository_client: Init_repository
          return  resultado;
 
     }
-    public static async Task<int> delete(string nome)
+    internal  async Task<int> delete(string nome)
     {
         int resultado;
-        await using NpgsqlConnection connect=Connect();
-
+        
+        await using NpgsqlConnection connect=host.Connect();
+        
         await connect.OpenAsync();
         //revisar e colocar pra pegar por id
         using (var  cmd = new NpgsqlCommand("DELETE FROM cliente WHERE nome = @nome ", connect))

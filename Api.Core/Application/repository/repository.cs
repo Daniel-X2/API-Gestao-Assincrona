@@ -1,15 +1,16 @@
 using Npgsql;
 using static System.Console;
-
- class  Init_repository
+internal interface IConnect
 {
-    private static string host=File.ReadAllText("/home/daniel/Pasta_boa_demais_pra_ficar_em_um_lugar/Nova pasta/projeto/Api.Core/host.txt");
+    NpgsqlConnection Connect();
+}
+internal class  Host:IConnect
+{
+    private readonly string host=File.ReadAllText("/home/daniel/Pasta_boa_demais_pra_ficar_em_um_lugar/Nova pasta/projeto/Api.Core/host.txt");
    
-    private protected static NpgsqlConnection Connect()
+    public NpgsqlConnection Connect() 
     {
-        NpgsqlConnection connect=new (host);
-        
-        return connect;
+        return new NpgsqlConnection (host);        
     }
    
     

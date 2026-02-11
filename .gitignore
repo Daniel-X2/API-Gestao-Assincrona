@@ -7,3 +7,4 @@ Api/bin/
 Api.Core/obj
 Api.test/obj
 Api.test/bin
+Api/obj/Debug/net8.0/Api.csproj.FileListAbsolute.txt
