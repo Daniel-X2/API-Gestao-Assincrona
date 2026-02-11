@@ -11,19 +11,14 @@ namespace api
 
     class Routers
     {
-        public class Personagem
-        {
-            public string N1{get;set;}
-
-        }
+        
         public static void Router_Home(WebApplication app)
         {
             
             app.MapGet("/", () => 
             {
-                Personagem n1=new();
-                n1.N1="n2";
-                return n1;
+               
+                return "";
                 
             });
             

@@ -1,7 +1,3 @@
-
-
-using System.ComponentModel;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql;
 
 
@@ -11,11 +7,11 @@ class repository_client: Init_repository
     
     protected internal static async Task<tipos> Get_client()
     {
-        await using var n1=Connect();
+        await using NpgsqlConnection connect=Connect();
         
-        await n1.OpenAsync();
+        await connect.OpenAsync();
         
-        await using var cmd = new NpgsqlCommand("SELECT * FROM cliente", n1);
+        await using var cmd = new NpgsqlCommand("SELECT * FROM cliente", connect);
        
         tipos lista=new();
         
@@ -23,10 +19,10 @@ class repository_client: Init_repository
         while(await reader.ReadAsync())
         {
             client campos=new();
-            campos.Nome=(string)reader[0];
-            campos.cpf=(string)reader[1];
-            campos.conta=(int)reader[2];
-            campos.isvip=(bool)reader[3];
+            campos.Nome=(string)reader["nome"];
+            campos.cpf=(string)reader["cpf"];
+            campos.conta=(int)reader["conta"];
+            campos.isvip=(bool)reader["isvip"];
             lista.lista_client.Add(campos);
         }
          
@@ -34,31 +30,31 @@ class repository_client: Init_repository
     }
     protected internal static async Task<int> add_client(string nome,int cpf,int conta,bool isvip)
     {
-        int sucesso;
-        await using NpgsqlConnection n1 = Connect();
+        int resultado;
+        await using NpgsqlConnection connect = Connect();
         
-        await n1.OpenAsync();
+        await connect.OpenAsync();
 
-        await using (var cmd = new NpgsqlCommand("INSERT INTO cliente (nome ,cpf, conta,isvip) VALUES (@nome, @cpf, @conta,@isvip)", n1))
+        await using (var cmd = new NpgsqlCommand("INSERT INTO cliente (nome ,cpf, conta,isvip) VALUES (@nome, @cpf, @conta,@isvip)", connect))
         {
             cmd.Parameters.AddWithValue("nome", nome);
             cmd.Parameters.AddWithValue("cpf", cpf);
             cmd.Parameters.AddWithValue("conta", conta);
             cmd.Parameters.AddWithValue("isvip", isvip);
-            sucesso=await cmd.ExecuteNonQueryAsync();
+            resultado=await cmd.ExecuteNonQueryAsync();
         }
         
-        return sucesso;
+        return resultado;
     }  
     
     public static async Task<int> atualizar_client(string antigo_nome,string novo_nome)
     {
         
-        await using var n1=Connect();
+        await using NpgsqlConnection connect=Connect();
 
-        await n1.OpenAsync();
+        await connect.OpenAsync();
         int resultado;
-        using (var cmd=new NpgsqlCommand("UPDATE  cliente set nome = @nome WHERE nome =  @antigo_nome", n1))
+        using (var cmd=new NpgsqlCommand("UPDATE  cliente set nome = @nome WHERE nome =  @antigo_nome", connect))
         {
             cmd.Parameters.AddWithValue("nome",novo_nome);
             cmd.Parameters.AddWithValue("antigo_nome",antigo_nome);
@@ -70,7 +66,7 @@ class repository_client: Init_repository
     public static async Task<int> delete(string nome)
     {
         int resultado;
-        await using var connect=Connect();
+        await using NpgsqlConnection connect=Connect();
 
         await connect.OpenAsync();
         //revisar e colocar pra pegar por id

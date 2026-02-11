@@ -1,6 +1,6 @@
 using Xunit;
 using static repository_client;
-
+using static repository_funcionario;
 public class Test_client
 {
     [Fact]
@@ -17,11 +17,13 @@ public class Test_client
     [Fact]
     public async Task test_atualizar_client()
     {
-        string antigo_nome="Daniel";
+        string antigo_nome="felipe";
         await add_client(antigo_nome,4,4,false);
         
-        string novo_nome="cleiton";
+        string novo_nome="cleitonn";
         int resultado= await atualizar_client(antigo_nome,novo_nome);
+
+        await delete(novo_nome);
         Assert.NotEqual(0,resultado);
     
         
@@ -29,7 +31,7 @@ public class Test_client
     [Fact]
     public async Task test_delete_client()
     {
-        string nome="cleiton";
+        string nome="elton";
         await add_client(nome,4,4,false);
         
         int resultado = await delete(nome);
@@ -39,7 +41,7 @@ public class Test_client
     [Fact]
     public async Task test_get_client()
     {
-        string nome="cleiton";
+        string nome="clei";
         await add_client(nome,4,4,false);
 
        var resultado= await Get_client();
@@ -51,7 +53,3 @@ public class Test_client
     }
 }
 
-class test_funcionario
-{
-    
-}

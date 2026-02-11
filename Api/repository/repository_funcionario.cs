@@ -1,9 +1,3 @@
-//* get_funcionario
-//* adicionar_funcionario
-//* atualizar_funcionario
-//* delete_funcionario
-//
-using static System.Console;
 using Npgsql;
 
 
@@ -11,13 +5,13 @@ using Npgsql;
 class repository_funcionario:Init_repository
 {
     
-    private protected static async Task<tipos> Get_funcionario()
+    public static async Task<tipos> Get_funcionario()
     {
-        await using var n1=Connect();
+        await using NpgsqlConnection connect=Connect();
         
-        await n1.OpenAsync();
+        await connect.OpenAsync();
         
-        await using var cmd = new NpgsqlCommand("SELECT * FROM funcionario", n1);
+        await using var cmd = new NpgsqlCommand("SELECT * FROM funcionario", connect);
        
         tipos lista=new();
 
@@ -25,11 +19,11 @@ class repository_funcionario:Init_repository
         while(await reader.ReadAsync())
         {
             funcionario campos=new();
-            campos.nome=(string)reader[0];
-            campos.cpf=(string)reader[1];
-            campos.isadmin=(bool)reader[2];
-            campos.quantidade_atestato=(int)reader[3];
-            campos.nascimento=(int)reader[4];
+            campos.nome=(string)reader["nome"];
+            campos.cpf=(string)reader["cpf"];
+            campos.isadmin=(bool)reader["isadmin"];
+            campos.quantidade_atestado=(int)reader["quantidade_atestado"];
+            campos.nascimento=(int)reader["nascimento"];
             lista.lista_funcionario.Add(campos);
         }
          
@@ -37,32 +31,32 @@ class repository_funcionario:Init_repository
     }
     protected internal static async Task<int> add_funcionario(string nome,int cpf,int quantidade_atestado,bool isadmin,int nascimento)
     {
-        int sucesso;
-        await using NpgsqlConnection n1 = Connect();
+        int resultado;
+        await using NpgsqlConnection connect = Connect();
         
-        await n1.OpenAsync();
+        await connect.OpenAsync();
 
-        await using (var cmd = new NpgsqlCommand("INSERT INTO funcionario (nome ,cpf, isadmin,quantidade_atestado,nascimento) VALUES (@nome ,@cpf, @isadmin,@quantidade_atestado,@nascimento)", n1))
+        await using (var cmd = new NpgsqlCommand("INSERT INTO funcionario (nome ,cpf, isadmin,quantidade_atestado,nascimento) VALUES (@nome ,@cpf, @isadmin,@quantidade_atestado,@nascimento)", connect))
         {
             cmd.Parameters.AddWithValue("nome", nome);
             cmd.Parameters.AddWithValue("cpf", cpf);
             cmd.Parameters.AddWithValue("isadmin", isadmin);
             cmd.Parameters.AddWithValue("quantidade_atestado", quantidade_atestado);
             cmd.Parameters.AddWithValue("nascimento",nascimento);
-            sucesso=await cmd.ExecuteNonQueryAsync();
+            resultado=await cmd.ExecuteNonQueryAsync();
         }
         
-        return sucesso;
+        return resultado;
     }  
     
-    public static async Task<int> atualizar_client(string antigo_nome,string novo_nome)
+    public static async Task<int> atualizar_funcionario(string antigo_nome,string novo_nome)
     {
         
-        await using var n1=Connect();
+        await using NpgsqlConnection connect=Connect();
 
-        await n1.OpenAsync();
+        await connect.OpenAsync();
         int resultado;
-        using (var cmd=new NpgsqlCommand("UPDATE  funcionario set nome = @nome WHERE nome =  @antigo_nome", n1))
+        using (var cmd=new NpgsqlCommand("UPDATE  funcionario set nome = @nome WHERE nome =  @antigo_nome", connect))
         {
             cmd.Parameters.AddWithValue("nome",novo_nome);
             cmd.Parameters.AddWithValue("antigo_nome",antigo_nome);
@@ -71,20 +65,20 @@ class repository_funcionario:Init_repository
          return  resultado;
 
     }
-     protected async Task<int> delete(string nome)
+     public static async Task<int> delete_funcionario(string nome)
     {
-        int sucesso;
-        await using var n1=Connect();
+        int resultado;
+        await using NpgsqlConnection connect=Connect();
 
-        await n1.OpenAsync();
+        await connect.OpenAsync();
         //revisar e colocar pra pegar por id
-        using (var  cmd = new NpgsqlCommand("DELETE FROM funcionario WHERE nome = @nome ", n1))
+        using (var  cmd = new NpgsqlCommand("DELETE FROM funcionario WHERE nome = @nome ", connect))
         {
             cmd.Parameters.AddWithValue("nome",nome);
-            sucesso=await cmd.ExecuteNonQueryAsync();
+            resultado=await cmd.ExecuteNonQueryAsync();
         }
         
-        return sucesso ;
+        return resultado ;
         
         
     }
