@@ -1,7 +1,5 @@
 
 
-using static System.Console;
-
 
 
 
@@ -25,23 +23,25 @@ namespace api
         
             app.MapGet("/oi", () =>
             {
-                WriteLine("alo");
+            
                 return "outro";
             });
         }
         
     }
-    class Exec:repository_client
+    class Exec()
     {
 
-        public static void aMain()
+        public static void Main()
         {
-            
-            WebApplicationBuilder builder = WebApplication.CreateBuilder();
-            var app = builder.Build();
-            Routers.Router_Home(app);
-            app.Run();
-            
+         
+            //WebApplicationBuilder builder = WebApplication.CreateBuilder();
+            //var app = builder.Build();
+            //Routers.Router_Home(app);
+            //app.Run();
+           
+           string n1="";
+        
             
             
         }

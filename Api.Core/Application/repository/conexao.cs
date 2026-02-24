@@ -1,5 +1,5 @@
 using Npgsql;
-using static System.Console;
+using System.IO;
 public interface IConnect
 {
     NpgsqlConnection Connect();

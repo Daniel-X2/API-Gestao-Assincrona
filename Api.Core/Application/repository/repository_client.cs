@@ -71,22 +71,26 @@ class repository_client(IConnect host)
         bool resultado=(bool) await cmd.ExecuteScalarAsync();
         return resultado;
     }
-    internal  async Task<int> atualizar_client(string antigo_nome,string novo_nome)
+    internal  async Task<int> UpdateClient(client campos)
     {
         
         await using NpgsqlConnection connect=host.Connect();
 
         await connect.OpenAsync();
         int resultado;
-        using (var cmd=new NpgsqlCommand("UPDATE  cliente set nome = @nome WHERE nome =  @antigo_nome", connect))
+       await using (var cmd=new NpgsqlCommand("UPDATE  cliente set nome = @nome,cpf=@cpf,conta=@conta,isvip=@isvip WHERE nome = @antigo_nome", connect))
         {
-            cmd.Parameters.AddWithValue("nome",novo_nome);
-            cmd.Parameters.AddWithValue("antigo_nome",antigo_nome);
+            cmd.Parameters.AddWithValue("nome",campos.Nome);
+            cmd.Parameters.AddWithValue("antigo_nome",campos.Nome);
+            cmd.Parameters.AddWithValue("cpf",campos.cpf);
+            cmd.Parameters.AddWithValue("conta",campos.conta);
+            cmd.Parameters.AddWithValue("isvip",campos.isvip);
             resultado=await cmd.ExecuteNonQueryAsync();
         }
          return  resultado;
 
     }
+    
     internal  async Task<int> delete(string nome)
     {
         int resultado;
@@ -95,12 +99,13 @@ class repository_client(IConnect host)
         
         await connect.OpenAsync();
         //revisar e colocar pra pegar por id
-        using (var  cmd = new NpgsqlCommand("DELETE FROM cliente WHERE nome = @nome ", connect))
+       await using (var  cmd = new NpgsqlCommand("DELETE FROM cliente WHERE nome = @nome ", connect))
         {
             cmd.Parameters.AddWithValue("nome",nome);
             resultado=await cmd.ExecuteNonQueryAsync();
         }
         
+       
         return resultado ;
         
         

@@ -1,6 +1,6 @@
 
 
-class ListaClient//esse aqui e o dto do repository client subsituir o task<list<>>
+class ListaClient
 {
     public List<client> lista_client {get;set;}= new List<client>();
 }

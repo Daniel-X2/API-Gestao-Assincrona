@@ -34,7 +34,7 @@ class deposito(IConnect host)
        await using NpgsqlConnection connect=host.Connect();
         await connect.OpenAsync();
 
-        var cmd=new NpgsqlCommand("SELECT nome,quantidade FROM produto",connect);
+       await using var cmd=new NpgsqlCommand("SELECT nome,quantidade FROM produto",connect);
         var read=await cmd.ExecuteReaderAsync();
         ListaProduto lista=new();
         while(await read.ReadAsync())

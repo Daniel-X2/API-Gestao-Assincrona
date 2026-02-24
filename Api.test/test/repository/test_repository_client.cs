@@ -1,5 +1,5 @@
 using Xunit;
-using static repository_client;
+
 
 public class Test_client
 {
@@ -34,9 +34,9 @@ public class Test_client
         repository_client repo=new(host);
        string antigo_nome="felipe";
         await repo.add_client(antigo_nome,"4",4,false);
-        
+        client campos=new();
         string novo_nome="cleitonn";
-        int resultado= await repo.atualizar_client(antigo_nome,novo_nome);
+        int resultado= await repo.UpdateClient(campos);
 
         await repo.delete(novo_nome);
         Assert.NotEqual(0,resultado);
