@@ -5,7 +5,7 @@ class repository_client(IConnect host)
 {
     
     
-    internal  async Task<ListaClient> Get_client()
+    internal  async Task<ListaClient> Get_client(int id)
     {
 
         
@@ -13,8 +13,10 @@ class repository_client(IConnect host)
         await using NpgsqlConnection connect=host.Connect(); 
         
         await connect.OpenAsync();
+
+        await using var cmd = new NpgsqlCommand("SELECT * FROM cliente WHERE id = @id", connect);
+        cmd.Parameters.AddWithValue("id", id);
         
-        await using var cmd = new NpgsqlCommand("SELECT * FROM cliente", connect);
        
         ListaClient lista=new();
         
@@ -22,7 +24,7 @@ class repository_client(IConnect host)
         while(await reader.ReadAsync())
         {
             client campos=new();
-            campos.Nome=(string)reader["nome"];
+            campos.Nome=(string)reader[1];
             campos.cpf=(string)reader["cpf"];
             campos.conta=(int)reader["conta"];
             campos.isvip=(bool)reader["isvip"];
@@ -50,7 +52,7 @@ class repository_client(IConnect host)
         
         return resultado;
     }  
-    internal async Task<bool> VerificarConta(int conta)
+    internal async Task<bool> ContaExiste(int conta)
     {
         await using NpgsqlConnection connect=host.Connect();
         await connect.OpenAsync();
@@ -61,7 +63,7 @@ class repository_client(IConnect host)
        return resultado;
        
     }
-    internal async Task<bool> VerificarCpf(string cpf)
+    internal async Task<bool> CpfExiste(string cpf)
     {
         await using NpgsqlConnection connect =host.Connect();
         await connect.OpenAsync();
@@ -71,27 +73,31 @@ class repository_client(IConnect host)
         bool resultado=(bool) await cmd.ExecuteScalarAsync();
         return resultado;
     }
-    internal  async Task<int> UpdateClient(client campos)
+    internal  async Task<int> UpdateClient(client campos,int id)
     {
         
         await using NpgsqlConnection connect=host.Connect();
 
         await connect.OpenAsync();
         int resultado;
-       await using (var cmd=new NpgsqlCommand("UPDATE  cliente set nome = @nome,cpf=@cpf,conta=@conta,isvip=@isvip WHERE nome = @antigo_nome", connect))
-        {
-            cmd.Parameters.AddWithValue("nome",campos.Nome);
-            cmd.Parameters.AddWithValue("antigo_nome",campos.Nome);
-            cmd.Parameters.AddWithValue("cpf",campos.cpf);
-            cmd.Parameters.AddWithValue("conta",campos.conta);
-            cmd.Parameters.AddWithValue("isvip",campos.isvip);
-            resultado=await cmd.ExecuteNonQueryAsync();
-        }
+        string sql = "UPDATE  cliente set nome=@nome,cpf=@cpf,conta=@conta,isvip=@isvip  WHERE id = @id";
+        
+       await using var cmd = new NpgsqlCommand("UPDATE  cliente set nome=@nome,cpf=@cpf,conta=@conta,isvip=@isvip  WHERE id = @id", connect);
+      
+       cmd.Parameters.AddWithValue("conta",campos.conta);
+       cmd.Parameters.AddWithValue("isvip",campos.isvip);
+       cmd.Parameters.AddWithValue("nome", campos.Nome);
+       cmd.Parameters.AddWithValue("cpf", campos.cpf);
+       cmd.Parameters.AddWithValue("id", id);
+       
+        
+         resultado=await cmd.ExecuteNonQueryAsync();   
+        
          return  resultado;
-
     }
     
-    internal  async Task<int> delete(string nome)
+    
+    internal  async Task<int> delete(int id)
     {
         int resultado;
         
@@ -99,9 +105,9 @@ class repository_client(IConnect host)
         
         await connect.OpenAsync();
         //revisar e colocar pra pegar por id
-       await using (var  cmd = new NpgsqlCommand("DELETE FROM cliente WHERE nome = @nome ", connect))
+       await using (var  cmd = new NpgsqlCommand("DELETE FROM cliente WHERE id=@id ", connect))
         {
-            cmd.Parameters.AddWithValue("nome",nome);
+            cmd.Parameters.AddWithValue("id",id);
             resultado=await cmd.ExecuteNonQueryAsync();
         }
         

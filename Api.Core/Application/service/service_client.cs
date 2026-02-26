@@ -2,11 +2,11 @@
 class Service(repository_client repo)
 {
     
-    public async Task<ListaClient> Get_service()
+    public async Task<ListaClient> GetService()
     {
     
         
-        ListaClient valores= await repo.Get_client();
+        ListaClient valores= await repo.Get_client(1);
         if(valores.lista_client.Count==0)
         {
             throw new ArgumentException("deu zika pq nao tem");
@@ -14,10 +14,9 @@ class Service(repository_client repo)
         
         return  valores;
     }
-    public async Task<string> add_service(string nome,string cpf,int conta, bool isvip)
+    public async Task<string> AddService(string nome,string cpf,int conta, bool isvip)
     {
         client campos=new();
-        cpf=cpf.Replace(".","");
         Verificador verificador = new();
         if (!string.IsNullOrWhiteSpace(cpf))
         {
@@ -47,64 +46,95 @@ class Service(repository_client repo)
         }
         return "aaaaa";  
     }
-    public async Task<int> update_service(int id,string nome=null,string cpf=null,int conta=0,bool isvip=false)
+
+    public async Task<int> UpdateService(int id, string nome = null, string cpf = null, int conta = 0,
+        bool isvip = false)
     {
-        client campos=new();
-        
-        if(nome!=null )
+        client campos = new();
+        //
+        var n2 =await  repo.Get_client(1);
+
+        Verificador verificar = new();
+        if (!string.IsNullOrWhiteSpace(nome) && nome.Length > 4)
         {
-            campos.Nome=nome;
-        }
-        
-        if(cpf!=null )
-        {
-            cpf=cpf.Replace(".","");
-            if (cpf.Length==11 && await repo.VerificarCpf(cpf)==false)
-            {
-                //precisa validar isso
-                campos.cpf=cpf;
-            }
-            else
-            {
-                return 111;
-            }
-            
-        }
-        if(await repo.VerificarConta(conta)==false)
-        {
-            campos.conta=conta;
+            campos.Nome = nome;
         }
         else
         {
-            return 11;
+            campos.Nome = n2.lista_client[0].Nome;
         }
-        campos.isvip=isvip;
-    int resultado=  await  repo.UpdateClient(campos);
+
+        if (verificar.ValidarDigito(cpf) && !await repo.CpfExiste(cpf))
+        {
+            campos.cpf = cpf;
+        }
+        else
+        {
+            campos.cpf = n2.lista_client[0].cpf;
+        }
+
+        if (!int.IsNegative(conta) && !await repo.ContaExiste(conta) && conta>0)
+        {
+            campos.conta =conta;
+        }
+        else
+        {
+            campos.conta = n2.lista_client[0].conta;
+        }
+        campos.isvip = isvip;
+        //campos.isvip=isvip;
+        //int resultado=  await  repo.UpdateClient();
+        var cmd = await repo.UpdateClient(campos, id);
         return 0;
+    }
+
+    public async Task<bool> DeleteService(int id)
+    {
+      int resultado=  await repo.delete(id);
+      if (resultado == 0)
+      {
+          //lança exception dizendo que nao existe
+      }
+      return true;
     }
     public static async Task Main()
     {
         Host host=new();
         var n1=new repository_client(host);
         var n2 = new Service(n1);
-        Verificador n3 = new();
-        
-        n3.ValidarDigito("15691141457");
+      await  n2.AddService("Daniel", "348.996.680-58", 57, true);
+
+
+
+
     }
     
 }
 
 class Verificador
 {
+   
     public bool ValidarDigito(string cpf)
     {
-        
-        
+        if (string.IsNullOrWhiteSpace(cpf))
+        {
+            return false;
+        }
+        string CPF=null;
+        for (int c=0;c<cpf.Length;c++ )
+        {
+            if (char.IsNumber(cpf[c]))
+            {
+                CPF=$"{CPF}{cpf[c]}";
+            }
+        }
+
+        cpf = CPF;
         if (cpf.Length == 11)
         {
             
-            char digito1=cpf[9];
-            char digito2= cpf[10];
+            int digito1=cpf[9];
+            int digito2=cpf[10];
             cpf=cpf.Substring(0,9);
             int resultado1= CpfEtapa1(cpf);
             int resultado2 = CpfEtapa2(cpf, resultado1);
