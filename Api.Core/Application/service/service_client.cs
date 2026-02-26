@@ -2,11 +2,11 @@
 class Service(repository_client repo)
 {
     
-    public async Task<ListaClient> GetService()
+    public async Task<ListaClient> GetAllService()
     {
     
         
-        ListaClient valores= await repo.Get_client(1);
+        ListaClient valores= await repo.GetAllClient();
         if(valores.lista_client.Count==0)
         {
             throw new ArgumentException("deu zika pq nao tem");
@@ -32,7 +32,7 @@ class Service(repository_client repo)
         {
             campos.Nome = nome;
         }
-        int resultado= await repo.add_client(nome,cpf,conta,isvip);
+        int resultado= await repo.AddClient(nome,cpf,conta,isvip);
         switch (resultado){
         case 0:
         {
@@ -52,7 +52,7 @@ class Service(repository_client repo)
     {
         client campos = new();
         //
-        var n2 =await  repo.Get_client(1);
+        var valores =await  repo.GetById(1);
 
         Verificador verificar = new();
         if (!string.IsNullOrWhiteSpace(nome) && nome.Length > 4)
@@ -61,7 +61,7 @@ class Service(repository_client repo)
         }
         else
         {
-            campos.Nome = n2.lista_client[0].Nome;
+            campos.Nome = valores.Nome;
         }
 
         if (verificar.ValidarDigito(cpf) && !await repo.CpfExiste(cpf))
@@ -70,7 +70,7 @@ class Service(repository_client repo)
         }
         else
         {
-            campos.cpf = n2.lista_client[0].cpf;
+            campos.cpf = valores.cpf;
         }
 
         if (!int.IsNegative(conta) && !await repo.ContaExiste(conta) && conta>0)
@@ -79,7 +79,7 @@ class Service(repository_client repo)
         }
         else
         {
-            campos.conta = n2.lista_client[0].conta;
+            campos.conta = valores.conta;
         }
         campos.isvip = isvip;
         //campos.isvip=isvip;

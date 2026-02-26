@@ -5,7 +5,7 @@ class repository_client(IConnect host)
 {
     
     
-    internal  async Task<ListaClient> Get_client(int id)
+    internal  async Task<ListaClient> GetAllClient()
     {
 
         
@@ -14,8 +14,8 @@ class repository_client(IConnect host)
         
         await connect.OpenAsync();
 
-        await using var cmd = new NpgsqlCommand("SELECT * FROM cliente WHERE id = @id", connect);
-        cmd.Parameters.AddWithValue("id", id);
+        await using var cmd = new NpgsqlCommand("SELECT * FROM cliente ", connect);
+
         
        
         ListaClient lista=new();
@@ -24,7 +24,7 @@ class repository_client(IConnect host)
         while(await reader.ReadAsync())
         {
             client campos=new();
-            campos.Nome=(string)reader[1];
+            campos.Nome=(string)reader["nome"];
             campos.cpf=(string)reader["cpf"];
             campos.conta=(int)reader["conta"];
             campos.isvip=(bool)reader["isvip"];
@@ -33,7 +33,29 @@ class repository_client(IConnect host)
          
         return lista;
     }
-    internal  async Task<int> add_client(string nome,string cpf,int conta,bool isvip)
+    internal  async Task<client> GetById(int id)
+    {
+        await using NpgsqlConnection connect=host.Connect(); 
+        
+        await connect.OpenAsync();
+
+        await using var cmd = new NpgsqlCommand("SELECT * FROM cliente WHERE id = @id", connect);
+        cmd.Parameters.AddWithValue("id", id);
+        
+        await using var reader = await cmd.ExecuteReaderAsync();
+        await reader.ReadAsync();
+        
+        client campos=new();
+        campos.Nome=(string)reader["nome"];
+        campos.cpf=(string)reader["cpf"];
+        campos.conta=(int)reader["conta"];
+        campos.isvip=(bool)reader["isvip"];
+           
+        
+         
+        return campos;
+    }
+    internal  async Task<int> AddClient(string nome,string cpf,int conta,bool isvip)
     {
         int resultado;
         
