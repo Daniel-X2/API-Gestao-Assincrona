@@ -20,17 +20,29 @@ class Service(repository_client repo)
         Verificador verificador = new();
         if (!string.IsNullOrWhiteSpace(cpf))
         {
-            
-            if (verificador.ValidarDigito(cpf))
+
+            if (verificador.ValidarDigito(cpf) && !await repo.CpfExiste(cpf))
             {
+                
                 campos.cpf = cpf;
             }
-            
+            else
+            {
+                return "";
+            }
+        }
+        else
+        {
+            return "";
         }
 
         if (verificador.VerificarNome(nome))
         {
             campos.Nome = nome;
+        }
+        else
+        {
+            return "";
         }
         int resultado= await repo.AddClient(nome,cpf,conta,isvip);
         switch (resultado){
@@ -52,7 +64,7 @@ class Service(repository_client repo)
     {
         client campos = new();
         //
-        var valores =await  repo.GetById(1);
+        var valores =await  repo.GetById(id);
 
         Verificador verificar = new();
         if (!string.IsNullOrWhiteSpace(nome) && nome.Length > 4)
@@ -102,7 +114,7 @@ class Service(repository_client repo)
         Host host=new();
         var n1=new repository_client(host);
         var n2 = new Service(n1);
-      await  n2.AddService("Daniel", "348.996.680-58", 57, true);
+      await  n2.AddService("Daniel", "111.444.777-35", 55677, true);
 
 
 
@@ -133,19 +145,21 @@ class Verificador
         if (cpf.Length == 11)
         {
             
-            int digito1=cpf[9];
-            int digito2=cpf[10];
+            int.TryParse(cpf[9].ToString(),out int digito1);
+            int.TryParse(cpf[10].ToString(),out int digito2);
+            //int digito2=cpf[10];
             cpf=cpf.Substring(0,9);
-            int resultado1= CpfEtapa1(cpf);
+            int resultado1 = 0+CpfEtapa1(cpf);
+            
             int resultado2 = CpfEtapa2(cpf, resultado1);
             if (resultado1 == digito1 && resultado2 == digito2)
             {
                 return true;
             }
-            
+             return false;
         }
-        return false;//aqui deve gerar uma exception
-
+       //aqui deve gerar uma exception
+       return false;
     }
     public bool VerificarNome(string nome)
     {
@@ -180,7 +194,8 @@ class Verificador
                     }
                 }
             }
-            return soma;
+            
+            return 0-soma;
         }
 
         return 0;
@@ -190,30 +205,25 @@ class Verificador
     {
         if (cpf.Length == 9)
         {
-            int soma=0;
+            int soma = 0;
             int contador = 11;
-            foreach (var c in cpf )
+            string cpfCompleto = cpf + digito; 
+
+            foreach (char c in cpfCompleto)
             {
                 if (char.IsNumber(c))
                 {
                     
-                    int.TryParse(c.ToString(), out int saida);
-                    soma = (saida * contador);
+                    int valor = c - '0'; 
+                    soma += valor * contador;
                     contador--;
-                    if (contador == 2)
-                    {
-                        //int.TryParse(digito, out  saida);
-                        soma = (digito * contador);
-                        soma = soma % 11;
-                        soma = 11 - soma;
-                        break;
-                    }
                 }
             }
 
-            return soma;
+            int resto = soma % 11;
+            return (resto < 2) ? 0 : 11 - resto;
         }
-
+        
         return 00;
     }
 }
