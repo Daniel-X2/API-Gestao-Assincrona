@@ -1,29 +1,39 @@
 using Npgsql;
+using Dto;
 
+namespace Api.core.Application.repository
+{
+public interface  IRepositoryClient
+{
+   internal Task<ListaClient>  GetAllClient();
+   internal Task<ClientDto> GetById(int id);
+   internal Task<int> AddClient(string nome,string cpf,int conta,bool isvip);
+   internal Task<bool> ContaExiste(int conta);
+   internal Task<bool> CpfExiste(string cpf);
+   internal Task<int> UpdateClient(ClientDto campos, int id);
+   internal Task<int> delete(int id);
+   internal Task<int> GetIdByCpf(string cpf);
 
-class repository_client(IConnect host)
+}
+internal class RepositoryClient(IConnect host):IRepositoryClient
 {
     
     
-    internal  async Task<ListaClient> GetAllClient()
+    public async Task<ListaClient>  GetAllClient()
     {
 
-        
-        
         await using NpgsqlConnection connect=host.Connect(); 
         
         await connect.OpenAsync();
 
         await using var cmd = new NpgsqlCommand("SELECT * FROM cliente ", connect);
 
-        
-       
         ListaClient lista=new();
         
         await using var reader = await cmd.ExecuteReaderAsync();
         while(await reader.ReadAsync())
         {
-            client campos=new();
+            ClientDto campos=new();
             campos.Nome=(string)reader["nome"];
             campos.cpf=(string)reader["cpf"];
             campos.conta=(int)reader["conta"];
@@ -33,7 +43,7 @@ class repository_client(IConnect host)
          
         return lista;
     }
-    internal  async Task<client> GetById(int id)
+    public  async Task<ClientDto> GetById(int id)
     {
         await using NpgsqlConnection connect=host.Connect(); 
         
@@ -45,7 +55,7 @@ class repository_client(IConnect host)
         await using var reader = await cmd.ExecuteReaderAsync();
         await reader.ReadAsync();
         
-        client campos=new();
+        ClientDto campos=new();
         campos.Nome=(string)reader["nome"];
         campos.cpf=(string)reader["cpf"];
         campos.conta=(int)reader["conta"];
@@ -55,7 +65,7 @@ class repository_client(IConnect host)
          
         return campos;
     }
-    internal  async Task<int> AddClient(string nome,string cpf,int conta,bool isvip)
+    public  async Task<int> AddClient(string nome,string cpf,int conta,bool isvip)
     {
         int resultado;
         
@@ -74,7 +84,7 @@ class repository_client(IConnect host)
         
         return resultado;
     }  
-    internal async Task<bool> ContaExiste(int conta)
+    public async Task<bool> ContaExiste(int conta)
     {
         await using NpgsqlConnection connect=host.Connect();
         await connect.OpenAsync();
@@ -85,7 +95,7 @@ class repository_client(IConnect host)
        return resultado;
        
     }
-    internal async Task<bool> CpfExiste(string cpf)
+    public async Task<bool> CpfExiste(string cpf)
     {
         await using NpgsqlConnection connect =host.Connect();
         await connect.OpenAsync();
@@ -95,7 +105,7 @@ class repository_client(IConnect host)
         bool resultado=(bool) await cmd.ExecuteScalarAsync();
         return resultado;
     }
-    internal  async Task<int> UpdateClient(client campos,int id)
+    public  async Task<int> UpdateClient(ClientDto campos,int id)
     {
         
         await using NpgsqlConnection connect=host.Connect();
@@ -117,9 +127,7 @@ class repository_client(IConnect host)
         
          return  resultado;
     }
-    
-    
-    internal  async Task<int> delete(int id)
+    public  async Task<int> delete(int id)
     {
         int resultado;
         
@@ -137,9 +145,24 @@ class repository_client(IConnect host)
         return resultado ;
         
         
+    }public  async Task<int> GetIdByCpf(string cpf)
+    {
+        await using NpgsqlConnection connect=host.Connect(); 
+        
+        await connect.OpenAsync();
+
+        await using var cmd = new NpgsqlCommand("SELECT id FROM cliente WHERE cpf=@cpf ", connect);
+        cmd.Parameters.AddWithValue("cpf", cpf);
+        
+        await using var reader = await cmd.ExecuteReaderAsync();
+        await reader.ReadAsync();
+
+
+
+
+        
+        return (int) reader["id"];
     }
     
 }
-
-
-
+}

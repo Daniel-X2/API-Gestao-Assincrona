@@ -1,4 +1,4 @@
-using System.Runtime.InteropServices;
+
 using Npgsql;
 
 
@@ -20,7 +20,7 @@ class repository_funcionario(IConnect host)
         await using var reader = await cmd.ExecuteReaderAsync();
         while(await reader.ReadAsync())
         {
-            funcionario campos=new();
+            FuncionarioDto campos=new();
             campos.nome=(string)reader["nome"];
             campos.cpf=(string)reader["cpf"];
             campos.isadmin=(bool)reader["isadmin"];

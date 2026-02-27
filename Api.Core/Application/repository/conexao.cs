@@ -1,13 +1,12 @@
 using Npgsql;
-using System.IO;
-public interface IConnect
+internal interface IConnect
 {
-    NpgsqlConnection Connect();
+   internal NpgsqlConnection Connect();
 }
-public class  Host:IConnect
+internal class  Host:IConnect
 {
     
-    public static string FileHost()
+    private static string FileHost()
     {
         string host;
        if(File.Exists("../host.txt"))
@@ -27,6 +26,8 @@ public class  Host:IConnect
         string  file = FileHost();
         return new NpgsqlConnection (file);        
     }
+    public static void Main(){}
+    
 }
 
 
